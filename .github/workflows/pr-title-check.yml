@@ -1,0 +1,30 @@
+name: PR Checks
+
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+
+jobs:
+  title_check:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Check PR Title Prefix
+        id: title_check
+        uses: actions/github-script@v5
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const core = require('@actions/core');
+            const titleRegex = /^(fix|feat|test|chore|docs|refactor):/;
+            const prTitle = context.payload.pull_request.title;
+            
+            console.log(`🔍 Checking PR Title: "${prTitle}"`);
+            
+            if (!titleRegex.test(prTitle)) {
+              core.setFailed('❌ Invalid PR title! Use: "fix:", "feat:", "test:", "chore:", "docs:", or "refactor:".');
+            } else {
+              console.log('✅ PR title is valid.');
+            }
